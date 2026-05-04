@@ -69,7 +69,7 @@ function setupSettingsInputs(): void {
         input.addEventListener('change', (e) => {
             selectedTheme = (e.target as HTMLInputElement).value;
             updateThemePreview();
-            updateSummary(); // 👈 HIER
+            updateSummary();
         });
     });
 
@@ -90,14 +90,14 @@ function setupSettingsInputs(): void {
     playerInputs.forEach(input => {
         input.addEventListener('change', (e) => {
             selectedPlayer = (e.target as HTMLInputElement).value;
-            updateSummary(); // 👈 HIER
+            updateSummary();
         });
     });
 
     sizeInputs.forEach(input => {
         input.addEventListener('change', (e) => {
             selectedSize = (e.target as HTMLInputElement).value;
-            updateSummary(); // 👈 HIER
+            updateSummary();
         });
     });
 }
@@ -158,7 +158,7 @@ function addCardEvents(): void {
  * - triggers pair check
  */
 function handleCardClick(card: HTMLElement): void {
-    if (isLocked) return; // 👈 WICHTIG
+    if (isLocked) return;
     if (flippedCards.length === 2) return;
     if (card.classList.contains('active')) return;
 
@@ -166,7 +166,7 @@ function handleCardClick(card: HTMLElement): void {
     flippedCards.push(card);
 
     if (flippedCards.length === 2) {
-        isLocked = true; // 👈 sperren
+        isLocked = true;
         handleCardPair();
     }
 }
@@ -198,7 +198,6 @@ function handleCardPair(): void {
 function handleMatch(value: string) {
     matchedValues.push(Number(value));
 
-    // 👉 DIREKT im DOM markieren
     flippedCards.forEach(card => {
         card.classList.add('matched');
     });
@@ -269,7 +268,7 @@ function handleMismatch(card1: HTMLElement, card2: HTMLElement): void {
 
         setTimeout(() => {
             switchPlayer();
-            isLocked = false; // 👈 entsperren
+            isLocked = false;
         }, 400);
     }, 800);
 }
@@ -372,22 +371,17 @@ function setupExitModal(): void {
 
     if (!exitBtn || !overlay) return;
 
-    // 👉 öffnen
     exitBtn.addEventListener('click', () => {
         overlay.classList.add('active');
     });
 
-    // 👉 schließen (Back)
     cancelBtn?.addEventListener('click', () => {
         overlay.classList.remove('active');
     });
 
-    // 👉 bestätigen (Exit Game)
     confirmBtn?.addEventListener('click', () => {
         init();
     });
-
-    // 👉 optional: Klick außerhalb
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.classList.remove('active');
