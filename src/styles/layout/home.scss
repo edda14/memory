@@ -1,0 +1,74 @@
+.home {
+    &-content {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 85px;
+        background-color: #303131;
+        background-image: url("/assets/startscreen/controller_background.svg");
+        background-color: #303131;
+        background-repeat: no-repeat;
+        background-position: left bottom;
+        background-size: 400px;
+    }
+
+    &-div {
+        display: flex;
+        align-items: start;
+        flex-direction: column;
+
+        >p {
+            font-family: 'Almarai';
+            font-size: 48px;
+            color: #FFFFFF;
+            line-height: 100%;
+            font-weight: 400;
+            letter-spacing: 3%;
+        }
+
+        >h2 {
+            font-family: 'Red Rose';
+            font-size: 140px;
+            color: #FFFFFF;
+            font-weight: 700;
+            line-height: 100%;
+        }
+    }
+
+    &-btn {
+        padding: 24px;
+        font-size: 40px;
+        font-family: 'Red Rose';
+        gap: 20px;
+        display: flex;
+        background-color: #F0EA6E;
+        transition: all ease 0.2s;
+        border: none;
+
+        &_controller {
+            width: 44px;
+            transition: all ease 0.2s;
+        }
+
+        &_arrow {
+            width: 33px;
+            transition: all ease 0.2s;
+        }
+
+        &:hover {
+            cursor: pointer;
+            transform: scale(1.08);
+
+            .home-btn_controller {
+                transform: rotate(-25deg) scale(1.1);
+            }
+
+            .home-btn_arrow {
+                transform: scale(1.1);
+            }
+        }
+    }
+}

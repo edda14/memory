@@ -1,0 +1,74 @@
+@use './components/card';
+@use './themes/code';
+@use './themes/gaming';
+@use './layout/home';
+@use './layout/settings';
+
+@font-face {
+    font-family: 'Red Rose';
+    src: url('/assets/font/Red_Rose/static/RedRose-SemiBold.ttf') format('truetype');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Red Rose Light';
+    src: url('/assets/font/Red_Rose/static/RedRose-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Red Rose Super Light';
+    src: url('/assets/font/Red_Rose/static/RedRose-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Red Rose Medium';
+    src: url('/assets/font/Red_Rose/static/RedRose-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Almarai';
+    src: url('/assets/font/Almarai/Almarai-Light.ttf') format('truetype');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Almarai Bold';
+    src: url('/assets/font/Almarai/Almarai-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('/assets/font/Orbitron/static/Orbitron-SemiBold.ttf') format('truetype');
+    font-weight: 700;
+}
+
+body {
+    margin: 0;
+}
+
+* {
+    margin: 0;
+}
+
+main {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+}
+
+section {
+    text-align: center;
+}
+
+#grid {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+
+.game {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+}

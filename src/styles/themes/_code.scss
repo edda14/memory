@@ -1,0 +1,365 @@
+.game.theme-code {
+    width: 100%;
+    height: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    padding: 10px;
+    gap: 54px;
+    font-family: "Red Rose";
+    color: white;
+    background-color: #303131;
+
+    #grid {
+        display: grid;
+        gap: 16px;
+        justify-content: center;
+
+        .card.matched {
+            .card-back {
+                outline: 3px solid rgba(77, 213, 188, 1);
+                box-shadow: 6px 6px 8px rgba(77, 213, 188, 0.6);
+            }
+        }
+
+        .card {
+            width: 120px;
+            height: 120px;
+        }
+
+        .card-front {
+            background: linear-gradient(190deg, rgba(77, 213, 188, 1), rgba(40, 111, 98, 1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-front::after {
+            content: url('/assets/game/coding-theme/back.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .card-back {
+            background-color: rgba(232, 243, 240, 1);
+        }
+    }
+
+    .exit-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+
+        &.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+    }
+
+    .exit-modal {
+        width: 459px;
+        height: 190px;
+        color: black;
+        font-size: 24px;
+        background: #f4f4f4;
+        line-height: 40px;
+        padding: 40px;
+        transform: translateY(-100px);
+        opacity: 0;
+        gap: 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+
+        .exit-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+
+            .btn {
+                padding: 16px 24px;
+                font-family: "Red Rose";
+                font-size: 16px;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    box-shadow: 0 0 8px rgba(77, 213, 188, 0.6);
+                    cursor: pointer;
+                }
+            }
+
+            .btn-primary {
+                background-color: rgba(102, 207, 188, 1);
+                border: 2px transparent solid;
+                color: white;
+
+                &:hover {
+                    background-color: rgba(102, 207, 188, 0.7);
+                    border: solid 2px rgba(77, 213, 188, 1);
+
+                }
+            }
+
+            .btn-secondary {
+                background-color: rgba(134, 233, 214, 0.14);
+                color: rgba(77, 213, 188, 1);
+                border: solid 2px rgba(77, 213, 188, 1);
+
+                &:hover {
+                    background-color: rgba(102, 207, 188, 0.3);
+
+                }
+            }
+        }
+    }
+
+    .exit-overlay.active .exit-modal {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .current {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: end;
+        gap: 8px;
+
+        .current-icon {
+            display: flex;
+            justify-content: end;
+        }
+
+        >h2 {
+            font-family: "Red Rose Light";
+            font-size: 26px;
+            font-weight: 400;
+        }
+    }
+
+    >nav {
+        width: 80%;
+        height: 67px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: end;
+
+        .score {
+            width: 292px;
+            height: 62px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            gap: 20px;
+            background-color: rgba(134, 233, 214, 0.2);
+
+            .score-div {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+            }
+
+            .score-blue {
+                color: rgba(43, 177, 255, 1);
+            }
+
+            .score-orange {
+                color: rgba(245, 142, 57, 1);
+            }
+        }
+
+        >button {
+            width: 207px;
+            height: 62px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: "Red Rose";
+            color: white;
+            background-color: rgba(134, 233, 214, 0.2);
+            border: 1px solid rgba(77, 213, 188, 1);
+            transition: all 0.2s ease;
+
+            &:hover {
+                border: 3px solid rgba(77, 213, 188, 1);
+
+                box-shadow: 0 0 8px rgba(77, 213, 188, 0.6);
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.gameover-code {
+    background-color: rgba(48, 49, 49, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .gameover-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+
+        >div {
+            .blue {
+                color: rgba(43, 177, 255, 1);
+                font-size: 24px;
+                font-family: "Red Rose";
+            }
+
+            .orange {
+                color: rgba(245, 142, 57, 1);
+                font-size: 24px;
+                font-family: "Red Rose";
+            }
+
+            >div {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+            }
+
+            width: 324px;
+            height: 62px;
+            background-color: rgba(134, 233, 214, 0.2);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+
+            >p {
+                font-family: "Red Rose";
+                font-size: 24px;
+            }
+        }
+
+        >h2 {
+            font-family: "Red Rose";
+            font-size: 149px;
+            color: rgba(77, 213, 188, 1);
+            margin-bottom: 124px;
+            text-shadow: -2px -2px 0 #ffffff,
+        }
+
+        >h3 {
+            font-family: "Almarai";
+            letter-spacing: 4%;
+            font-weight: 400;
+            color: white;
+            font-size: 26px;
+        }
+    }
+}
+
+.winner-code {
+    background-color: rgba(48, 49, 49, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Red Rose";
+
+    .confetti {
+        position: absolute;
+        top: 0;
+        right: 5%;
+        left: 5%;
+        width: 90%;
+        height: 350px;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .winner-code-section.active {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .winner-code-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 42px;
+        transform: translateY(-100px);
+        opacity: 0;
+        transition: all 0.4s ease;
+
+        >img {
+            width: 200px;
+        }
+
+        #restart-btn {
+            width: 204px;
+            height: 62px;
+            background-color: rgba(134, 233, 214, 0.2);
+            color: white;
+            font-family: "Red Rose";
+            font-size: 24px;
+            border: 1px solid rgba(77, 213, 188, 0.8);
+            transition: all ease 0.3s;
+
+            &:hover {
+                background-color: rgba(134, 233, 214, 0.26);
+                cursor: pointer;
+                box-shadow: 4px 4px 6px rgba(77, 213, 188, 0.2);
+                border: 1px solid rgba(77, 213, 188, 1);
+            }
+        }
+
+        >div {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            >h2 {
+                color: white;
+                font-size: 34px;
+                line-height: 90%;
+                letter-spacing: 8%;
+                font-family: "Almarai";
+            }
+
+            >h3 {
+                font-size: 60px;
+            }
+
+            .blue {
+                color: rgba(43, 177, 255, 1);
+            }
+
+            .orange {
+                color: rgba(245, 142, 57, 1);
+            }
+
+            &.draw {
+                color: white;
+            }
+        }
+    }
+}
