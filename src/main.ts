@@ -1,28 +1,12 @@
 import './styles/style.scss'
-
-let selectedPlayer: string = '';
-let selectedSize: string = '';
-let currentPlayer: string = '';
-let flippedCards: HTMLElement[] = [];
-let cardValues: number[] = [];
-let matchedValues: number[] = [];
-let selectedTheme: string = '';
-let isLocked = false;
-const playerImages = {
-    Code: {
-        blue: '/assets/game/coding-theme/label_blue.svg',
-        orange: '/assets/game/coding-theme/label_orange.svg'
-    },
-    Gaming: {
-        blue: '/assets/game/game-theme/chess_blue.svg',
-        orange: '/assets/game/game-theme/chess_orange.svg'
-    }
-};
-
-let score = {
-    blue: 0,
-    orange: 0
-};
+import { state } from './state';
+import {
+    renderHome,
+    renderSettings,
+    renderGame,
+    renderWinner,
+    renderGameOver,
+} from './render';
 
 const app = document.getElementById('app') as HTMLElement;
 
@@ -67,7 +51,7 @@ function setupSettingsInputs(): void {
 
     themeInputs.forEach(input => {
         input.addEventListener('change', (e) => {
-            selectedTheme = (e.target as HTMLInputElement).value;
+            state.selectedTheme = (e.target as HTMLInputElement).value;
             updateThemePreview();
             updateSummary();
         });
@@ -78,25 +62,25 @@ function setupSettingsInputs(): void {
 
         if (!img) return;
 
-        if (selectedTheme === 'Code') {
+        if (state.selectedTheme === 'Code') {
             img.src = '/assets/settings/coding-theme.png';
         }
 
-        if (selectedTheme === 'Gaming') {
+        if (state.selectedTheme === 'Gaming') {
             img.src = '/assets/settings/game-theme.png';
         }
     }
 
     playerInputs.forEach(input => {
         input.addEventListener('change', (e) => {
-            selectedPlayer = (e.target as HTMLInputElement).value;
+            state.selectedPlayer = (e.target as HTMLInputElement).value;
             updateSummary();
         });
     });
 
     sizeInputs.forEach(input => {
         input.addEventListener('change', (e) => {
-            selectedSize = (e.target as HTMLInputElement).value;
+            state.selectedSize = (e.target as HTMLInputElement).value;
             updateSummary();
         });
     });
@@ -118,17 +102,17 @@ function setupStartGameButton(): void {
  * - renders game board
  */
 function startGame(): void {
-    if (!selectedPlayer || !selectedSize) {
+    if (!state.selectedPlayer || !state.selectedSize) {
         alert('Bitte wähle Player und Spielfeldgröße');
         return;
     }
 
-    currentPlayer = selectedPlayer;
-    cardValues = generateCardValues(Number(selectedSize));
-    matchedValues = [];
-    flippedCards = [];
+    state.currentPlayer = state.selectedPlayer;
+    state.cardValues = generateCardValues(Number(state.selectedSize));
+    state.matchedValues = [];
+    state.flippedCards = [];
 
-    score = {
+    state.score = {
         blue: 0,
         orange: 0
     };
@@ -136,6 +120,39 @@ function startGame(): void {
     app.innerHTML = renderGame();
     addCardEvents();
     setupExitModal();
+}
+
+function generateCardValues(amount: number): number[] {
+    const values: number[] = [];
+
+    for (let i = 0; i < amount / 2; i++) {
+        values.push(i);
+        values.push(i);
+    }
+
+    return values.sort(() => Math.random() - 0.5);
+}
+
+function switchPlayer(): void {
+    state.currentPlayer = state.currentPlayer === 'blue' ? 'orange' : 'blue';
+}
+
+/**
+ * Updates score display in UI
+ */
+function updateScore(): void {
+    state.score[state.currentPlayer as 'blue' | 'orange']++;
+
+    const blueEl = document.getElementById('score-blue');
+    const orangeEl = document.getElementById('score-orange');
+
+    if (blueEl) {
+        blueEl.textContent = `${state.score.blue}`;
+    }
+
+    if (orangeEl) {
+        orangeEl.textContent = `${state.score.orange}`;
+    }
 }
 
 /**
@@ -158,154 +175,19 @@ function addCardEvents(): void {
  * - triggers pair check
  */
 function handleCardClick(card: HTMLElement): void {
-    if (isLocked) return;
-    if (flippedCards.length === 2) return;
+    if (state.isLocked) return;
+    if (state.flippedCards.length === 2) return;
     if (card.classList.contains('active')) return;
 
     card.classList.add('active');
-    flippedCards.push(card);
+    state.flippedCards.push(card);
 
-    if (flippedCards.length === 2) {
-        isLocked = true;
+    if (state.flippedCards.length === 2) {
+        state.isLocked = true;
         handleCardPair();
     }
 }
 
-/**
- * Checks if two flipped cards match
- */
-function handleCardPair(): void {
-    const [card1, card2] = flippedCards;
-
-    const value1 = card1.dataset.value!;
-    const value2 = card2.dataset.value!;
-
-    if (value1 === value2) {
-        setTimeout(() => {
-            handleMatch(value1);
-        }, 500);
-    } else {
-        handleMismatch(card1, card2);
-    }
-}
-
-/**
- * Handles correct match:
- * - marks cards
- * - updates score
- * - checks game end
- */
-function handleMatch(value: string) {
-    matchedValues.push(Number(value));
-
-    flippedCards.forEach(card => {
-        card.classList.add('matched');
-    });
-
-    updateScore();
-
-    flippedCards = [];
-    isLocked = false;
-
-    checkGameOver();
-}
-
-/**
- * Updates score display in UI
- */
-function updateScore(): void {
-    score[currentPlayer as 'blue' | 'orange']++;
-
-    const blueEl = document.getElementById('score-blue');
-    const orangeEl = document.getElementById('score-orange');
-
-    if (blueEl) {
-        blueEl.textContent = `${score.blue}`;
-    }
-
-    if (orangeEl) {
-        orangeEl.textContent = `${score.orange}`;
-    }
-}
-
-/**
- * Checks if all cards are matched and triggers game over
- */
-function checkGameOver(): void {
-    const allCards = document.querySelectorAll('.card');
-    const allFlipped = document.querySelectorAll('.card.active');
-
-    if (allCards.length === allFlipped.length) {
-        app.innerHTML = renderGameOver();
-
-        setTimeout(() => {
-            app.innerHTML = renderWinner();
-
-            const winnerEl = document.querySelector('.winner-code-section, .winner-gaming-section');
-
-            setTimeout(() => {
-                winnerEl?.classList.add('active');
-            }, 50);
-
-            const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
-            restartBtn.addEventListener('click', () => init());
-
-        }, 3000);
-    }
-}
-
-/**
- * Handles wrong match:
- * - flips cards back
- * - switches player
- */
-function handleMismatch(card1: HTMLElement, card2: HTMLElement): void {
-    setTimeout(() => {
-        card1.classList.remove('active');
-        card2.classList.remove('active');
-
-        flippedCards = [];
-
-        setTimeout(() => {
-            switchPlayer();
-            isLocked = false;
-        }, 400);
-    }, 800);
-}
-
-/**
- * Switches active player and re-renders game
- */
-function switchPlayer(): void {
-    currentPlayer = currentPlayer === 'blue' ? 'orange' : 'blue';
-
-    app.innerHTML = renderGame();
-    addCardEvents();
-    setupExitModal();
-}
-
-/**
- * Generates shuffled pairs of card values
- */
-function generateCardValues(amount: number): number[] {
-    const values: number[] = [];
-
-    for (let i = 0; i < amount / 2; i++) {
-        values.push(i);
-        values.push(i);
-    }
-
-    return values.sort(() => Math.random() - 0.5);
-}
-
-/**
- * Determines the winner based on score
- */
-function getWinner(): string {
-    if (score.blue > score.orange) return 'blue';
-    if (score.orange > score.blue) return 'orange';
-    return 'draw';
-}
 
 /**
  * Updates settings summary UI
@@ -315,19 +197,19 @@ function updateSummary(): void {
     const playerEl = document.getElementById('summary-player');
     const sizeEl = document.getElementById('summary-size');
 
-    if (themeEl && selectedTheme) {
-        themeEl.textContent = selectedTheme + ' theme';
+    if (themeEl && state.selectedTheme) {
+        themeEl.textContent = state.selectedTheme + ' theme';
         updateStartButton();
         updateDividerState();
     }
 
-    if (playerEl && selectedPlayer) {
-        playerEl.textContent = selectedPlayer + ' Player';
+    if (playerEl && state.selectedPlayer) {
+        playerEl.textContent = state.selectedPlayer + ' Player';
         updateStartButton();
     }
 
-    if (sizeEl && selectedSize) {
-        sizeEl.textContent = 'Board-' + selectedSize + ' Cards';
+    if (sizeEl && state.selectedSize) {
+        sizeEl.textContent = 'Board-' + state.selectedSize + ' Cards';
         updateStartButton();
     }
 }
@@ -340,7 +222,7 @@ function updateStartButton(): void {
 
     if (!btn) return;
 
-    if (selectedTheme && selectedPlayer && selectedSize) {
+    if (state.selectedTheme && state.selectedPlayer && state.selectedSize) {
         btn.disabled = false;
     } else {
         btn.disabled = true;
@@ -353,7 +235,7 @@ function updateStartButton(): void {
 function updateDividerState(): void {
     const dividers = document.querySelectorAll('.summary-divider');
 
-    if (selectedTheme && selectedPlayer && selectedSize) {
+    if (state.selectedTheme && state.selectedPlayer && state.selectedSize) {
         dividers.forEach(d => d.classList.add('active'));
     } else {
         dividers.forEach(d => d.classList.remove('active'));
@@ -390,448 +272,91 @@ function setupExitModal(): void {
 }
 
 /**
- * Returns correct image path for a card based on theme
+ * Handles wrong match:
+ * - flips cards back
+ * - switches player
  */
-function getCardImage(value: number): string {
-    const theme = selectedTheme as 'Code' | 'Gaming';
+ function handleMismatch(card1: HTMLElement, card2: HTMLElement): void {
+    setTimeout(() => {
+        card1.classList.remove('active');
+        card2.classList.remove('active');
 
-    const images = {
-        Code: [
-            '/assets/game/coding-theme/HTML.svg',
-            '/assets/game/coding-theme/Javascript.svg',
-            '/assets/game/coding-theme/Node.js.svg',
-            '/assets/game/coding-theme/Angular.svg',
-            '/assets/game/coding-theme/Clip.svg',
-            '/assets/game/coding-theme/CSS.svg',
-            '/assets/game/coding-theme/django.svg',
-            '/assets/game/coding-theme/Firebase.svg',
-            '/assets/game/coding-theme/git-icon 1.svg',
-            '/assets/game/coding-theme/github-logo.svg',
-            '/assets/game/coding-theme/Group-17.svg',
-            '/assets/game/coding-theme/Group.svg',
-            '/assets/game/coding-theme/python.svg',
-            '/assets/game/coding-theme/Sass.svg',
-            '/assets/game/coding-theme/SQL.svg',
-            '/assets/game/coding-theme/terminal.svg',
-            '/assets/game/coding-theme/TypeScript.svg',
-            '/assets/game/coding-theme/VS-code.svg'
-        ],
-        Gaming: [
-            '/assets/game/game-theme/ass.svg',
-            '/assets/game/game-theme/asset-würfel.svg',
-            '/assets/game/game-theme/Asset1.svg',
-            '/assets/game/game-theme/Asset2.svg',
-            '/assets/game/game-theme/Asset3.svg',
-            '/assets/game/game-theme/banana.svg',
-            '/assets/game/game-theme/block.svg',
-            '/assets/game/game-theme/coin.svg',
-            '/assets/game/game-theme/controller.svg',
-            '/assets/game/game-theme/gamboy.svg',
-            '/assets/game/game-theme/mandala.svg',
-            '/assets/game/game-theme/medaille.svg',
-            '/assets/game/game-theme/mushroom.svg',
-            '/assets/game/game-theme/pacman-big.svg',
-            '/assets/game/game-theme/pacman.svg',
-            '/assets/game/game-theme/playbutton.svg',
-            '/assets/game/game-theme/puzzle.svg',
-            '/assets/game/game-theme/snake.svg'
+        state.flippedCards = [];
 
-        ]
-    };
+        setTimeout(() => {
+            switchPlayer();
 
-    return images[theme][value];
+            app.innerHTML = renderGame();
+
+            addCardEvents();
+
+            setupExitModal();
+            state.isLocked = false;
+        }, 400);
+    }, 800);
 }
 
 /**
- * Returns player icon based on theme and color
+ * Checks if all cards are matched and triggers game over
  */
-function getPlayerIcon(color: 'blue' | 'orange'): string {
-    return playerImages[selectedTheme as 'Code' | 'Gaming'][color];
-}
+ function checkGameOver(): void {
+    const allCards = document.querySelectorAll('.card');
+    const allFlipped = document.querySelectorAll('.card.active');
 
-/**
- * Returns winner icon
- */
-function getWinnerIcon(color: 'blue' | 'orange'): string {
-    return playerImages['Gaming'][color];
-}
+    if (allCards.length === allFlipped.length) {
+        app.innerHTML = renderGameOver();
 
-/**
- * Renders home screen HTML
- */
-function renderHome(): string {
-    return `
-    <main class="home">
-      <section class="home-content">
-      <div class="home-div">
-      <p>It's play time.</p>
-        <h2>Ready to play?</h2>
-      </div>
-      <button class="home-btn" id="start-btn" type="button"><img class="home-btn_controller" src="/assets/startscreen/stadia_controller.svg" alt="Controller icon"></img> Play <img class="home-btn_arrow" src="/assets/startscreen/Arrow.svg" alt="Arrow icon"></img></button>
-      </section>
-    </main>
-  `;
-}
+        setTimeout(() => {
+            app.innerHTML = renderWinner();
 
-/**
- * Renders settings screen HTML
- */
-function renderSettings(): string {
-    return `
-    <main class="settings">
-     <h2>Settings</h2>
-      <section class="settings-content">
-       <div class="settings-content-left">
-         <section class="option">
-          <div class="option-title">
-          <img src="/assets/settings/palette.svg" alt="Theme icon"></img>
-          <h3>Game themes</h3>
-          </div>
-           <div class="option-content">
+            const winnerEl = document.querySelector('.winner-code-section, .winner-gaming-section');
 
-            <label>
-                <input type="radio" name="theme" value="Code">
-                <span class="option-content-dot"></span>
-                <span class="option-content-text">Code vibes</span>
-                <span class="option-content-arrow"></span>
-               
-            </label>
+            setTimeout(() => {
+                winnerEl?.classList.add('active');
+            }, 50);
 
-            <label>
-                <input type="radio" name="theme" value="Gaming">
-                <span class="option-content-dot"></span>
-                <span class="option-content-text">Gaming</span>
-                <span class="option-content-arrow"></span>
-            </label>
-            </div>
-         </section>
-            
+            const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+            restartBtn.addEventListener('click', () => init());
 
-        <section class="option">
-         <div class="option-title">
-         <img src="/assets/settings/chess_pawn.svg" alt="Player icon"></img>
-          <h3>Choose player</h3>
-          </div>
-          <div class="option-content">
-          <label>
-            <input type="radio" name="player" value="blue">
-            <span class="option-content-dot"></span>
-            <span class="option-content-text">Blue</span>
-            <span class="option-content-arrow"></span>
-          </label>
-          <label>
-            <input type="radio" name="player" value="orange">
-            <span class="option-content-dot"></span>
-            <span class="option-content-text">Orange</span>
-            <span class="option-content-arrow"></span>
-          </label>
-          </div>
-        </section>
-
-        <section class="option">
-        <div class="option-title">
-        <img src="/assets/settings/style.svg" alt="Board size icon"></img>
-          <h3>Board size</h3>
-          </div>
-          <div class="option-content">
-          <label>
-            <input type="radio" name="size" value="16">
-            <span class="option-content-dot"></span>
-            <span class="option-content-text">16 cards</span>
-            <span class="option-content-arrow"></span>
-          </label>
-          <label>
-            <input type="radio" name="size" value="24">
-            <span class="option-content-dot"></span>
-            <span class="option-content-text">24 cards</span>
-            <span class="option-content-arrow"></span>
-          </label>
-          <label>
-            <input type="radio" name="size" value="36">
-            <span class="option-content-dot"></span>
-            <span class="option-content-text">36 cards</span>
-            <span class="option-content-arrow"></span>
-          </label>
-          </div>
-         </section>
-    </div>
-
-       <div class="settings-content-right">
-    <div class="settings-preview">
-  <img id="theme-preview" src="/assets/settings/coding-theme.png" alt="Theme preview">
-</div>
-<div class="settings-content-right-start" >
-  <span id="summary-theme">Theme</span>
-  <span class="summary-divider"></span>
-  <span id="summary-player">Player</span>
-  <span class="summary-divider"></span>
-  <span id="summary-size">Board size</span>
-
-<button id="start-game-btn" disabled type="button"> <img src="/assets/settings/smart_display.svg" alt="Start icon"></img> Start</button>
-</div>
-</div>
-      </section>
-    </main>
-  `;
-}
-
-/**
- * Renders game board including cards and UI
- */
-function renderGame(): string {
-    const size = Number(selectedSize);
-    let cardWidth = selectedTheme === 'Code' ? 120 : 105;
-    let cardHeight = selectedTheme === 'Code' ? 120 : 120;
-    let gap = 16;
-
-    let gapX = 16;
-    let gapY = 16;
-
-    if (selectedTheme === 'Gaming') {
-        if (size === 24) {
-            gapX = 12;
-            gapY = 12;
-        }
-
-        if (size === 36) {
-            gapX = 8;
-            gapY = 10;
-        }
+        }, 3000);
     }
-
-    if (selectedTheme === 'Code') {
-        if (size === 24) {
-            gapX = 12;
-            gapY = 12;
-        }
-
-        if (size === 36) {
-            gapX = 10;
-            gapY = 10;
-        }
-    }
-
-    let columns = 4;
-    if (size === 24) columns = 6;
-    if (size === 36) columns = 6;
-
-    const themeClass = selectedTheme === 'Code'
-        ? 'theme-code'
-        : 'theme-gaming';
-
-    const playerImg =
-        playerImages[selectedTheme as 'Code' | 'Gaming']
-        [currentPlayer as 'blue' | 'orange'];
-
-    return `
-    <main>
-      <section class="game ${themeClass}">
-      <nav>
-       <div class="score">
-        <div class="score-div">
-         <img src="${getPlayerIcon('blue')}" alt="Player icon blue"/>
-            ${selectedTheme === 'Code' ? `<span class="label score-blue">Blue</span>` : ''}
-         <span class="score-blue" id="score-blue">${score.blue}</span>
-         </div>
-
-  <div class="score-div">
-    <img src="${getPlayerIcon('orange')}" alt="Player icon orange"/>
-    ${selectedTheme === 'Code' ? `<span class="label score-orange">Orange</span>` : ''}
-    <span class="score-orange" id="score-orange">${score.orange}</span>
-  </div>
-</div>
-  <div class="current ${selectedTheme === 'Gaming' ? currentPlayer : ''}">
-
-  <h2>Current player:</h2>
-
-  <div class="current-icon">
-
-    <img src="${selectedTheme === 'Gaming'
-
-            ? '/assets/game/game-theme/chess_white.svg'
-
-            : getPlayerIcon(currentPlayer as 'blue' | 'orange')
-
-        }" alt="Current Player icon"/>
-
-  </div>
-
-</div>
-        <button id="game-btn" type="button"> 
-        <img src="/assets/game/game-theme/move_item.svg" alt="Move icon"></img>
-        Exit Game
-        </button>
-        </nav>
-
-      <div 
-  id="grid" 
-  style="
-    grid-template-columns: repeat(${columns}, ${cardWidth}px);
-    gap: ${gapY}px ${gapX}px;
-  "
->
-          ${renderCards()}
-        </div>
-
-        <div id="exit-overlay" class="exit-overlay">
-  <div class="exit-modal">
-    <h2>Are you sure you want to quit the game?</h2>
-
-    <div class="exit-actions">
-    ${selectedTheme === 'Code' ? `
-
-  <button id="cancel-exit" class="btn-primary btn" type="button">Back to game</button>
-
-  <button id="confirm-exit" class="btn-secondary btn" type="button">Exit game</button>
-
-` : `
-
-  <button id="cancel-exit" class="btn-primary btn" type="button">No, back to game</button>
-
-  <button id="confirm-exit" class="btn-secondary btn" type="button">Yes, quit game</button>
-
-`}
-    </div>
-  </div>
-</div>
-      </section>
-    </main>
-  `;
 }
 
 /**
- * Renders all cards based on generated values
+ * Handles correct match:
+ * - marks cards
+ * - updates score
+ * - checks game end
  */
-function renderCards(): string {
-    let html = '';
+function handleMatch(value: string) {
+    state.matchedValues.push(Number(value));
 
-    cardValues.forEach((value) => {
-        const isMatched = matchedValues.includes(value);
-
-        html += `
-<div class="card 
-  ${isMatched ? 'matched active' : ''}" 
-  data-value="${value}">
-  <div class="card-inner">
-    <div class="card-front">
-    </div>
-    <div class="card-back">
-      <img src="${getCardImage(value)}" alt="Memory card"/>
-    </div>
-  </div>
-</div>
-    `;
+    state.flippedCards.forEach(card => {
+        card.classList.add('matched');
     });
 
-    return html;
+    updateScore();
+
+    state.flippedCards = [];
+    state.isLocked = false;
+
+    checkGameOver();
 }
 
 /**
- * Chooses correct winner screen based on theme
+ * Checks if two flipped cards match
  */
-function renderWinner(): string {
-    return selectedTheme === 'Code'
-        ? renderWinnerCode()
-        : renderWinnerGaming();
-}
+function handleCardPair(): void {
+    const [card1, card2] = state.flippedCards;
 
-/**
- * Chooses correct game over screen based on theme
- */
-function renderGameOver(): string {
-    return selectedTheme === 'Code'
-        ? renderGameOverCode()
-        : renderGameOverGaming();
-}
+    const value1 = card1.dataset.value!;
+    const value2 = card2.dataset.value!;
 
-/**
- * Renders game over screen (Code theme)
- */
-function renderGameOverCode(): string {
-    return `
-    <main class="gameover-code">
-      <section class="gameover-content">
-        <h2>Game Over</h2>
-        <h3>Final score</h3>
-        <div class="winner">
-        <div> 
-        <img src="/assets/game/coding-theme/label_blue.svg" alt="Blue Player icon"/>
-        <p class="blue">Blue ${score.blue}</p>
-        </div>
-        <div>
-        <img src="/assets/game/coding-theme/label_orange.svg" alt="Orange Player icon"/>
-        <p class="orange">Orange ${score.orange}</p></div>
-        </div>
-      </section>
-    </main>
-  `;
-}
-
-/**
- * Renders game over screen (Gaming theme)
- */
-function renderGameOverGaming(): string {
-    return `
-    <main class="gameover-game">
-      <section class="gameover-content">
-
-        <h2 class="gameover-title">GAME OVER</h2>
-        <h3>Final score</h3>
-        <div class="gameover-scores">
-          <div class="score-box">
-            <img src="${getPlayerIcon('orange')}" alt="Orange Player icon"/>
-            <span class="orange">${score.orange}</span>
-          </div>
-          <div class="score-box">
-            <img src="${getPlayerIcon('blue')}" alt="Blue Player icon"/>
-            <span class="blue">${score.blue}</span>
-          </div>
-        </div>
-
-      </section>
-    </main>
-  `;
-}
-
-/**
- * Renders winner screen (Code theme)
- */
-function renderWinnerCode(): string {
-    return `
-    <main class="winner-code">
-    <img class="confetti" src="/assets/winner/confetti.svg" alt="Confetti"/>
-      <section class="winner-code-section">
-      <div>
-        <h2>The Winner is</h2>
-        <h3 class="winner ${getWinner()}">${getWinner()} Player</h3>
-        </div>
-        <img src="${getWinnerIcon(getWinner() as 'blue' | 'orange')}" alt="Winner icon"/>
-        <button id="restart-btn" type="button">
-        Back to start
-        </button>
-      </section>
-    </main>
-  `;
-}
-
-/**
- * Renders winner screen (Gaming theme)
- */
-function renderWinnerGaming(): string {
-    return `
-    <main class="winner-gaming">
-      <section class="winner-gaming-section">
-      <div>
-        <h2 class="winner-title">The winner is</h2>
-        <h3 class="winner ${getWinner()}">${getWinner()} Player</h3>
-        </div>
-        <div class="winner-icon">
-          <img src="/assets/winner/pockal.svg" alt="Pokal"/>
-        </div>
-        <button id="restart-btn" type="button">
-          Home
-        </button>
-      </section>
-    </main>
-  `;
+    if (value1 === value2) {
+        setTimeout(() => {
+            handleMatch(value1);
+        }, 500);
+    } else {
+        handleMismatch(card1, card2);
+    }
 }
