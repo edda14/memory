@@ -307,9 +307,9 @@ function setupExitModal(): void {
         app.innerHTML = renderGameOver();
 
         setTimeout(() => {
-            app.innerHTML = renderWinner();
+            app.insertAdjacentHTML('beforeend', renderWinner());
 
-            const winnerEl = document.querySelector('.winner-code-section, .winner-gaming-section');
+            const winnerEl = document.querySelector('.winner-code, .winner-gaming');
 
             setTimeout(() => {
                 winnerEl?.classList.add('active');

@@ -1,13 +1,45 @@
 .settings {
-    height: 100%;
-    width: auto;
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
     justify-content: center;
-    padding: 170px;
 
-    >h2 {
+    &-content {
+        width: 100%;
+        max-width: 1400px;
+        padding:  100px 160px;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        font-family: 'Almarai';
+
+        &-right {
+            padding-top: 180px;
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            gap: 45px;
+
+            &-start {
+                background-color: #F6F6F6;
+                padding: 14px 20px;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                font-size: 20px;
+                gap: 16px;
+            }
+        }
+
+        &-left {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            gap: 54px;
+            >h2 {
         font-family: 'Red Rose';
         font-size: 54px;
         position: relative;
@@ -35,40 +67,6 @@
             transform: rotate(45deg);
         }
     }
-
-    &-content {
-        width: stretch;
-        max-width: 1400px;
-        height: auto;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        font-family: 'Almarai';
-
-        &-right {
-            width: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: end;
-            gap: 45px;
-
-            &-start {
-                background-color: #F6F6F6;
-                padding: 14px 20px;
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                font-size: 20px;
-                gap: 16px;
-            }
-        }
-
-        &-left {
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-            gap: 54px;
         }
     }
 }
@@ -192,6 +190,7 @@
         }
 
         >label {
+            height: 24px;
             display: flex;
             flex-direction: row;
             align-items: center;

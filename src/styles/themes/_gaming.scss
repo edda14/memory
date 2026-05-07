@@ -13,6 +13,7 @@
     background-color: rgba(41, 79, 96, 1);
 
     >nav {
+        max-width: 1200px;
         width: 1200px;
         height: 88px;
         border-radius: 10px;
@@ -152,6 +153,10 @@
         }
 
         .card-front {
+            &:hover {
+                cursor: pointer;
+            }
+
             background: linear-gradient(240deg, rgba(237, 27, 118, 1), rgba(10, 40, 53, 1));
             box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
             display: flex;
@@ -338,9 +343,6 @@
         align-items: center;
         justify-content: center;
         gap: 64px;
-        transform: translateY(-100px);
-        opacity: 0;
-        transition: all 0.4s ease;
 
         #restart-btn {
             width: 107px;
@@ -398,11 +400,6 @@
                 font-size: 64px;
                 letter-spacing: 7%;
             }
-        }
-
-        &.active {
-            transform: translateY(0);
-            opacity: 1;
         }
     }
 }

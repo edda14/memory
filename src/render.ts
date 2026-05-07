@@ -1,4 +1,8 @@
-import { state } from './state';
+import { state,
+  playerImages,
+  cardImages
+ } from './state';
+ 
 export {
   renderHome,
   renderSettings,
@@ -11,69 +15,62 @@ export {
   getCardImage,
 };
 
+function getGameLayout() {
+    const size = Number(state.selectedSize);
 
-const playerImages = {
-    Code: {
-        blue: '/assets/game/coding-theme/label_blue.svg',
-        orange: '/assets/game/coding-theme/label_orange.svg'
-    },
-    Gaming: {
-        blue: '/assets/game/game-theme/chess_blue.svg',
-        orange: '/assets/game/game-theme/chess_orange.svg'
+    let cardWidth = state.selectedTheme === 'Code' ? 120 : 105;
+    let cardHeight = state.selectedTheme === 'Code' ? 120 : 120;
+
+    let gapX = 16;
+    let gapY = 16;
+
+    if (state.selectedTheme === 'Gaming') {
+        if (size === 24) {
+            gapX = 12;
+            gapY = 12;
+        }
+        if (size === 36) {
+            gapX = 8;
+            gapY = 10;
+        }
     }
-};
+
+    if (state.selectedTheme === 'Code') {
+        if (size === 24) {
+            gapX = 12;
+            gapY = 12;
+        }
+        if (size === 36) {
+            gapX = 10;
+            gapY = 10;
+        }
+    }
+
+    let columns = 4;
+    if (size === 24) columns = 6;
+    if (size === 36) columns = 6;
+
+    const themeClass = state.selectedTheme === 'Code'
+        ? 'theme-code'
+        : 'theme-gaming';
+
+    return {
+        cardWidth,
+        cardHeight,
+        gapX,
+        gapY,
+        columns,
+        themeClass
+    };
+}
+
 
 /**
  * Returns correct image path for a card based on theme
  */
 function getCardImage(value: number): string {
     const theme = state.selectedTheme as 'Code' | 'Gaming';
-
-    const images = {
-        Code: [
-            '/assets/game/coding-theme/HTML.svg',
-            '/assets/game/coding-theme/Javascript.svg',
-            '/assets/game/coding-theme/Node.js.svg',
-            '/assets/game/coding-theme/Angular.svg',
-            '/assets/game/coding-theme/Clip.svg',
-            '/assets/game/coding-theme/CSS.svg',
-            '/assets/game/coding-theme/django.svg',
-            '/assets/game/coding-theme/Firebase.svg',
-            '/assets/game/coding-theme/git-icon 1.svg',
-            '/assets/game/coding-theme/github-logo.svg',
-            '/assets/game/coding-theme/Group-17.svg',
-            '/assets/game/coding-theme/Group.svg',
-            '/assets/game/coding-theme/python.svg',
-            '/assets/game/coding-theme/Sass.svg',
-            '/assets/game/coding-theme/SQL.svg',
-            '/assets/game/coding-theme/terminal.svg',
-            '/assets/game/coding-theme/TypeScript.svg',
-            '/assets/game/coding-theme/VS-code.svg'
-        ],
-        Gaming: [
-            '/assets/game/game-theme/ass.svg',
-            '/assets/game/game-theme/asset-würfel.svg',
-            '/assets/game/game-theme/Asset1.svg',
-            '/assets/game/game-theme/Asset2.svg',
-            '/assets/game/game-theme/Asset3.svg',
-            '/assets/game/game-theme/banana.svg',
-            '/assets/game/game-theme/block.svg',
-            '/assets/game/game-theme/coin.svg',
-            '/assets/game/game-theme/controller.svg',
-            '/assets/game/game-theme/gamboy.svg',
-            '/assets/game/game-theme/mandala.svg',
-            '/assets/game/game-theme/medaille.svg',
-            '/assets/game/game-theme/mushroom.svg',
-            '/assets/game/game-theme/pacman-big.svg',
-            '/assets/game/game-theme/pacman.svg',
-            '/assets/game/game-theme/playbutton.svg',
-            '/assets/game/game-theme/puzzle.svg',
-            '/assets/game/game-theme/snake.svg'
-
-        ]
-    };
-
-    return images[theme][value];
+    return cardImages[theme][value];
 }
 
 /**
@@ -99,6 +96,24 @@ function getWinner(): string {
     return 'draw';
 }
 
+/**
+ * Chooses correct winner screen based on theme
+ */
+function renderWinner(): string {
+    return state.selectedTheme === 'Code'
+        ? renderWinnerCode()
+        : renderWinnerGaming();
+}
+
+/**
+ * Chooses correct game over screen based on theme
+ */
+function renderGameOver(): string {
+    return state.selectedTheme === 'Code'
+        ? renderGameOverCode()
+        : renderGameOverGaming();
+}
+
 
 function renderHome(): string {
     return `
@@ -120,9 +135,9 @@ function renderHome(): string {
 function renderSettings(): string {
     return `
     <main class="settings">
-     <h2>Settings</h2>
       <section class="settings-content">
        <div class="settings-content-left">
+       <h2>Settings</h2>
          <section class="option">
           <div class="option-title">
           <img src="/assets/settings/palette.svg" alt="Theme icon"></img>
@@ -220,50 +235,7 @@ function renderSettings(): string {
  * Renders game board including cards and UI
  */
 function renderGame(): string {
-    const size = Number(state.selectedSize);
-    let cardWidth = state.selectedTheme === 'Code' ? 120 : 105;
-    let cardHeight = state.selectedTheme === 'Code' ? 120 : 120;
-    let gap = 16;
-
-    let gapX = 16;
-    let gapY = 16;
-
-    if (state.selectedTheme === 'Gaming') {
-        if (size === 24) {
-            gapX = 12;
-            gapY = 12;
-        }
-
-        if (size === 36) {
-            gapX = 8;
-            gapY = 10;
-        }
-    }
-
-    if (state.selectedTheme === 'Code') {
-        if (size === 24) {
-            gapX = 12;
-            gapY = 12;
-        }
-
-        if (size === 36) {
-            gapX = 10;
-            gapY = 10;
-        }
-    }
-
-    let columns = 4;
-    if (size === 24) columns = 6;
-    if (size === 36) columns = 6;
-
-    const themeClass = state.selectedTheme === 'Code'
-        ? 'theme-code'
-        : 'theme-gaming';
-
-    const playerImg =
-        playerImages[state.selectedTheme as 'Code' | 'Gaming']
-        [state.currentPlayer as 'blue' | 'orange'];
-
+  const { cardWidth, gapX, gapY, columns, themeClass } = getGameLayout();
     return `
     <main>
       <section class="game ${themeClass}">
@@ -365,24 +337,6 @@ function renderCards(): string {
     });
 
     return html;
-}
-
-/**
- * Chooses correct winner screen based on theme
- */
-function renderWinner(): string {
-    return state.selectedTheme === 'Code'
-        ? renderWinnerCode()
-        : renderWinnerGaming();
-}
-
-/**
- * Chooses correct game over screen based on theme
- */
-function renderGameOver(): string {
-    return state.selectedTheme === 'Code'
-        ? renderGameOverCode()
-        : renderGameOverGaming();
 }
 
 /**
