@@ -40,50 +40,75 @@ function renderSettingsScreen(): void {
 }
 
 /**
- * Handles all settings inputs (theme, player, board size)
- * and updates UI preview + summary
+ * Initializes all settings input listeners.
  */
 function setupSettingsInputs(): void {
-    const playerInputs = document.querySelectorAll('input[name="player"]');
-    const sizeInputs = document.querySelectorAll('input[name="size"]');
+    setupThemeInputs();
+    setupPlayerInputs();
+    setupSizeInputs();
+}
 
-    const themeInputs = document.querySelectorAll('input[name="theme"]');
+/**
+ * Sets up event listeners for theme selection
+ * and updates preview + summary.
+ */
+function setupThemeInputs(): void {
+    const inputs = document.querySelectorAll('input[name="theme"]');
 
-    themeInputs.forEach(input => {
+    inputs.forEach(input => {
         input.addEventListener('change', (e) => {
             state.selectedTheme = (e.target as HTMLInputElement).value;
             updateThemePreview();
             updateSummary();
         });
     });
+}
 
-    function updateThemePreview(): void {
-        const img = document.getElementById('theme-preview') as HTMLImageElement;
+/**
+ * Sets up event listeners for player selection
+ * and updates summary.
+ */
+function setupPlayerInputs(): void {
+    const inputs = document.querySelectorAll('input[name="player"]');
 
-        if (!img) return;
-
-        if (state.selectedTheme === 'Code') {
-            img.src = '/assets/settings/coding-theme.png';
-        }
-
-        if (state.selectedTheme === 'Gaming') {
-            img.src = '/assets/settings/game-theme.png';
-        }
-    }
-
-    playerInputs.forEach(input => {
+    inputs.forEach(input => {
         input.addEventListener('change', (e) => {
             state.selectedPlayer = (e.target as HTMLInputElement).value;
             updateSummary();
         });
     });
+}
 
-    sizeInputs.forEach(input => {
+/**
+ * Sets up event listeners for board size selection
+ * and updates summary.
+ */
+function setupSizeInputs(): void {
+    const inputs = document.querySelectorAll('input[name="size"]');
+
+    inputs.forEach(input => {
         input.addEventListener('change', (e) => {
             state.selectedSize = (e.target as HTMLInputElement).value;
             updateSummary();
         });
     });
+}
+
+/**
+ * Updates the theme preview image based on selected theme.
+ */
+function updateThemePreview(): void {
+    const img = document.getElementById('theme-preview') as HTMLImageElement;
+
+    if (!img) return;
+
+    if (state.selectedTheme === 'Code') {
+        img.src = '/assets/settings/coding-theme.png';
+    }
+
+    if (state.selectedTheme === 'Gaming') {
+        img.src = '/assets/settings/game-theme.png';
+    }
 }
 
 /**
@@ -122,6 +147,11 @@ function startGame(): void {
     setupExitModal();
 }
 
+/**
+ * Generates a shuffled array of paired card values.
+ * Each value appears exactly twice to form matching pairs.
+ *
+ */
 function generateCardValues(amount: number): number[] {
     const values: number[] = [];
 

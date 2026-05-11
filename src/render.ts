@@ -1,8 +1,9 @@
-import { state,
+import {
+  state,
   playerImages,
   cardImages
- } from './state';
- 
+} from './state';
+
 export {
   renderHome,
   renderSettings,
@@ -16,52 +17,52 @@ export {
 };
 
 function getGameLayout() {
-    const size = Number(state.selectedSize);
+  const size = Number(state.selectedSize);
 
-    let cardWidth = state.selectedTheme === 'Code' ? 120 : 105;
-    let cardHeight = state.selectedTheme === 'Code' ? 120 : 120;
+  let cardWidth = state.selectedTheme === 'Code' ? 120 : 105;
+  let cardHeight = state.selectedTheme === 'Code' ? 120 : 120;
 
-    let gapX = 16;
-    let gapY = 16;
+  let gapX = 16;
+  let gapY = 16;
 
-    if (state.selectedTheme === 'Gaming') {
-        if (size === 24) {
-            gapX = 12;
-            gapY = 12;
-        }
-        if (size === 36) {
-            gapX = 8;
-            gapY = 10;
-        }
+  if (state.selectedTheme === 'Gaming') {
+    if (size === 24) {
+      gapX = 12;
+      gapY = 12;
     }
-
-    if (state.selectedTheme === 'Code') {
-        if (size === 24) {
-            gapX = 12;
-            gapY = 12;
-        }
-        if (size === 36) {
-            gapX = 10;
-            gapY = 10;
-        }
+    if (size === 36) {
+      gapX = 8;
+      gapY = 10;
     }
+  }
 
-    let columns = 4;
-    if (size === 24) columns = 6;
-    if (size === 36) columns = 6;
+  if (state.selectedTheme === 'Code') {
+    if (size === 24) {
+      gapX = 12;
+      gapY = 12;
+    }
+    if (size === 36) {
+      gapX = 10;
+      gapY = 10;
+    }
+  }
 
-    const themeClass = state.selectedTheme === 'Code'
-        ? 'theme-code'
-        : 'theme-gaming';
+  let columns = 4;
+  if (size === 24) columns = 6;
+  if (size === 36) columns = 6;
 
-    return {
-        cardWidth,
-        cardHeight,
-        gapX,
-        gapY,
-        columns,
-        themeClass
-    };
+  const themeClass = state.selectedTheme === 'Code'
+    ? 'theme-code'
+    : 'theme-gaming';
+
+  return {
+    cardWidth,
+    cardHeight,
+    gapX,
+    gapY,
+    columns,
+    themeClass
+  };
 }
 
 
@@ -69,54 +70,54 @@ function getGameLayout() {
  * Returns correct image path for a card based on theme
  */
 function getCardImage(value: number): string {
-    const theme = state.selectedTheme as 'Code' | 'Gaming';
-    return cardImages[theme][value];
+  const theme = state.selectedTheme as 'Code' | 'Gaming';
+  return cardImages[theme][value];
 }
 
 /**
  * Returns player icon based on theme and color
  */
 function getPlayerIcon(color: 'blue' | 'orange'): string {
-    return playerImages[state.selectedTheme as 'Code' | 'Gaming'][color];
+  return playerImages[state.selectedTheme as 'Code' | 'Gaming'][color];
 }
 
 /**
  * Returns winner icon
  */
 function getWinnerIcon(color: 'blue' | 'orange'): string {
-    return playerImages['Gaming'][color];
+  return playerImages['Gaming'][color];
 }
 
 /**
  * Determines the winner based on score
  */
 function getWinner(): string {
-    if (state.score.blue > state.score.orange) return 'blue';
-    if (state.score.orange > state.score.blue) return 'orange';
-    return 'draw';
+  if (state.score.blue > state.score.orange) return 'blue';
+  if (state.score.orange > state.score.blue) return 'orange';
+  return 'draw';
 }
 
 /**
  * Chooses correct winner screen based on theme
  */
 function renderWinner(): string {
-    return state.selectedTheme === 'Code'
-        ? renderWinnerCode()
-        : renderWinnerGaming();
+  return state.selectedTheme === 'Code'
+    ? renderWinnerCode()
+    : renderWinnerGaming();
 }
 
 /**
  * Chooses correct game over screen based on theme
  */
 function renderGameOver(): string {
-    return state.selectedTheme === 'Code'
-        ? renderGameOverCode()
-        : renderGameOverGaming();
+  return state.selectedTheme === 'Code'
+    ? renderGameOverCode()
+    : renderGameOverGaming();
 }
 
 
 function renderHome(): string {
-    return `
+  return `
     <main class="home">
       <section class="home-content">
       <div class="home-div">
@@ -133,7 +134,7 @@ function renderHome(): string {
  * Renders settings screen HTML
  */
 function renderSettings(): string {
-    return `
+  return `
     <main class="settings">
       <section class="settings-content">
        <div class="settings-content-left">
@@ -236,7 +237,7 @@ function renderSettings(): string {
  */
 function renderGame(): string {
   const { cardWidth, gapX, gapY, columns, themeClass } = getGameLayout();
-    return `
+  return `
     <main>
       <section class="game ${themeClass}">
       <nav>
@@ -261,11 +262,11 @@ function renderGame(): string {
 
     <img src="${state.selectedTheme === 'Gaming'
 
-            ? '/assets/game/game-theme/chess_white.svg'
+      ? '/assets/game/game-theme/chess_white.svg'
 
-            : getPlayerIcon(state.currentPlayer as 'blue' | 'orange')
+      : getPlayerIcon(state.currentPlayer as 'blue' | 'orange')
 
-        }" alt="Current Player icon"/>
+    }" alt="Current Player icon"/>
 
   </div>
 
@@ -316,12 +317,12 @@ function renderGame(): string {
  * Renders all cards based on generated values
  */
 function renderCards(): string {
-    let html = '';
+  let html = '';
 
-    state.cardValues.forEach((value) => {
-        const isMatched = state.matchedValues.includes(value);
+  state.cardValues.forEach((value) => {
+    const isMatched = state.matchedValues.includes(value);
 
-        html += `
+    html += `
 <div class="card 
   ${isMatched ? 'matched active' : ''}" 
   data-value="${value}">
@@ -334,16 +335,16 @@ function renderCards(): string {
   </div>
 </div>
     `;
-    });
+  });
 
-    return html;
+  return html;
 }
 
 /**
  * Renders game over screen (Code theme)
  */
 function renderGameOverCode(): string {
-    return `
+  return `
     <main class="gameover-code">
       <section class="gameover-content">
         <h2>Game Over</h2>
@@ -366,7 +367,7 @@ function renderGameOverCode(): string {
  * Renders game over screen (Gaming theme)
  */
 function renderGameOverGaming(): string {
-    return `
+  return `
     <main class="gameover-game">
       <section class="gameover-content">
 
@@ -392,7 +393,7 @@ function renderGameOverGaming(): string {
  * Renders winner screen (Code theme)
  */
 function renderWinnerCode(): string {
-    return `
+  return `
     <main class="winner-code">
     <img class="confetti" src="/assets/winner/confetti.svg" alt="Confetti"/>
       <section class="winner-code-section">
@@ -413,7 +414,7 @@ function renderWinnerCode(): string {
  * Renders winner screen (Gaming theme)
  */
 function renderWinnerGaming(): string {
-    return `
+  return `
     <main class="winner-gaming">
       <section class="winner-gaming-section">
       <div>
