@@ -24,7 +24,6 @@ function init(): void {
  */
 function renderHomeScreen(): void {
     app.innerHTML = renderHome();
-
     const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
     startBtn.addEventListener('click', renderSettingsScreen);
 }
@@ -34,7 +33,6 @@ function renderHomeScreen(): void {
  */
 function renderSettingsScreen(): void {
     app.innerHTML = renderSettings();
-
     setupSettingsInputs();
     setupStartGameButton();
 }
@@ -53,15 +51,28 @@ function setupSettingsInputs(): void {
  * and updates preview + summary.
  */
 function setupThemeInputs(): void {
-    const inputs = document.querySelectorAll('input[name="theme"]');
+    const labels = document.querySelectorAll('label');
+    labels.forEach(label => {
+    const input = label.querySelector('input[name="theme"]') as HTMLInputElement;
 
-    inputs.forEach(input => {
-        input.addEventListener('change', (e) => {
-            state.selectedTheme = (e.target as HTMLInputElement).value;
-            updateThemePreview();
-            updateSummary();
-        });
+    if (!input) return;
+
+    const value = input.value;
+
+    label.addEventListener('mouseenter', () => {
+        updateThemePreview(value);
     });
+
+    label.addEventListener('mouseleave', () => {
+        updateThemePreview(state.selectedTheme);
+    });
+
+    input.addEventListener('change', () => {
+        state.selectedTheme = value;
+        updateThemePreview(value);
+        updateSummary();
+    });
+});
 }
 
 /**
@@ -70,7 +81,6 @@ function setupThemeInputs(): void {
  */
 function setupPlayerInputs(): void {
     const inputs = document.querySelectorAll('input[name="player"]');
-
     inputs.forEach(input => {
         input.addEventListener('change', (e) => {
             state.selectedPlayer = (e.target as HTMLInputElement).value;
@@ -85,7 +95,6 @@ function setupPlayerInputs(): void {
  */
 function setupSizeInputs(): void {
     const inputs = document.querySelectorAll('input[name="size"]');
-
     inputs.forEach(input => {
         input.addEventListener('change', (e) => {
             state.selectedSize = (e.target as HTMLInputElement).value;
@@ -95,18 +104,20 @@ function setupSizeInputs(): void {
 }
 
 /**
- * Updates the theme preview image based on selected theme.
+ * Updates the theme preview image.
+ *
+ * @param theme - Theme to display preview for
  */
-function updateThemePreview(): void {
+function updateThemePreview(theme: string): void {
     const img = document.getElementById('theme-preview') as HTMLImageElement;
 
     if (!img) return;
 
-    if (state.selectedTheme === 'Code') {
+    if (theme === 'Code') {
         img.src = '/assets/settings/coding-theme.png';
     }
 
-    if (state.selectedTheme === 'Gaming') {
+    if (theme === 'Gaming') {
         img.src = '/assets/settings/game-theme.png';
     }
 }
@@ -116,32 +127,48 @@ function updateThemePreview(): void {
  */
 function setupStartGameButton(): void {
     const startGameBtn = document.getElementById('start-game-btn') as HTMLButtonElement;
-
     startGameBtn.addEventListener('click', startGame);
 }
 
 /**
- * Starts the game:
- * - validates input
- * - resets game state
- * - renders game board
+ * Initializes the game if required settings are selected.
  */
 function startGame(): void {
+    if (!isGameStartValid()) return;
+    initializeGameState();
+    renderGameScreen();
+}
+
+/**
+ * Checks if required settings are selected before starting the game.
+ * Shows an alert if validation fails.
+ */
+function isGameStartValid(): boolean {
     if (!state.selectedPlayer || !state.selectedSize) {
         alert('Bitte wähle Player und Spielfeldgröße');
-        return;
+        return false;
     }
+    return true;
+}
 
+/**
+ * Initializes all game state values for a new game.
+ */
+function initializeGameState(): void {
     state.currentPlayer = state.selectedPlayer;
     state.cardValues = generateCardValues(Number(state.selectedSize));
     state.matchedValues = [];
     state.flippedCards = [];
-
     state.score = {
         blue: 0,
         orange: 0
     };
+}
 
+/**
+ * Renders the game screen and sets up interactions.
+ */
+function renderGameScreen(): void {
     app.innerHTML = renderGame();
     addCardEvents();
     setupExitModal();
@@ -154,15 +181,16 @@ function startGame(): void {
  */
 function generateCardValues(amount: number): number[] {
     const values: number[] = [];
-
     for (let i = 0; i < amount / 2; i++) {
         values.push(i);
         values.push(i);
     }
-
     return values.sort(() => Math.random() - 0.5);
 }
 
+/**
+ * Switches the active player between 'blue' and 'orange'.
+ */
 function switchPlayer(): void {
     state.currentPlayer = state.currentPlayer === 'blue' ? 'orange' : 'blue';
 }
@@ -172,14 +200,11 @@ function switchPlayer(): void {
  */
 function updateScore(): void {
     state.score[state.currentPlayer as 'blue' | 'orange']++;
-
     const blueEl = document.getElementById('score-blue');
     const orangeEl = document.getElementById('score-orange');
-
     if (blueEl) {
         blueEl.textContent = `${state.score.blue}`;
     }
-
     if (orangeEl) {
         orangeEl.textContent = `${state.score.orange}`;
     }
@@ -190,7 +215,6 @@ function updateScore(): void {
  */
 function addCardEvents(): void {
     const cards = document.querySelectorAll('.card');
-
     cards.forEach(card => {
         card.addEventListener('click', () => {
             handleCardClick(card as HTMLElement);
@@ -208,16 +232,13 @@ function handleCardClick(card: HTMLElement): void {
     if (state.isLocked) return;
     if (state.flippedCards.length === 2) return;
     if (card.classList.contains('active')) return;
-
     card.classList.add('active');
     state.flippedCards.push(card);
-
     if (state.flippedCards.length === 2) {
         state.isLocked = true;
         handleCardPair();
     }
 }
-
 
 /**
  * Updates settings summary UI
@@ -226,18 +247,15 @@ function updateSummary(): void {
     const themeEl = document.getElementById('summary-theme');
     const playerEl = document.getElementById('summary-player');
     const sizeEl = document.getElementById('summary-size');
-
     if (themeEl && state.selectedTheme) {
         themeEl.textContent = state.selectedTheme + ' theme';
         updateStartButton();
         updateDividerState();
     }
-
     if (playerEl && state.selectedPlayer) {
         playerEl.textContent = state.selectedPlayer + ' Player';
         updateStartButton();
     }
-
     if (sizeEl && state.selectedSize) {
         sizeEl.textContent = 'Board-' + state.selectedSize + ' Cards';
         updateStartButton();
@@ -249,9 +267,7 @@ function updateSummary(): void {
  */
 function updateStartButton(): void {
     const btn = document.getElementById('start-game-btn') as HTMLButtonElement;
-
     if (!btn) return;
-
     if (state.selectedTheme && state.selectedPlayer && state.selectedSize) {
         btn.disabled = false;
     } else {
@@ -264,7 +280,6 @@ function updateStartButton(): void {
  */
 function updateDividerState(): void {
     const dividers = document.querySelectorAll('.summary-divider');
-
     if (state.selectedTheme && state.selectedPlayer && state.selectedSize) {
         dividers.forEach(d => d.classList.add('active'));
     } else {
@@ -273,27 +288,36 @@ function updateDividerState(): void {
 }
 
 /**
- * Handles exit modal (open, close, confirm exit)
+ * Initializes the exit modal and binds its events.
  */
 function setupExitModal(): void {
     const exitBtn = document.getElementById('game-btn');
     const overlay = document.getElementById('exit-overlay');
     const cancelBtn = document.getElementById('cancel-exit');
     const confirmBtn = document.getElementById('confirm-exit');
-
     if (!exitBtn || !overlay) return;
+    bindExitModalEvents(exitBtn, overlay, cancelBtn, confirmBtn);
+}
 
-    exitBtn.addEventListener('click', () => {
-        overlay.classList.add('active');
-    });
+/**
+ * Binds all primary event listeners for the exit modal.
+ */
+function bindExitModalEvents(
+    exitBtn: HTMLElement,
+    overlay: HTMLElement,
+    cancelBtn: HTMLElement | null,
+    confirmBtn: HTMLElement | null
+): void {
+    exitBtn.addEventListener('click', () => overlay.classList.add('active'));
+    cancelBtn?.addEventListener('click', () => overlay.classList.remove('active'));
+    confirmBtn?.addEventListener('click', () => init());
+    bindOverlayClose(overlay);
+}
 
-    cancelBtn?.addEventListener('click', () => {
-        overlay.classList.remove('active');
-    });
-
-    confirmBtn?.addEventListener('click', () => {
-        init();
-    });
+/**
+ * Closes the modal when clicking outside of the dialog.
+ */
+function bindOverlayClose(overlay: HTMLElement): void {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             overlay.classList.remove('active');
@@ -306,20 +330,15 @@ function setupExitModal(): void {
  * - flips cards back
  * - switches player
  */
- function handleMismatch(card1: HTMLElement, card2: HTMLElement): void {
+function handleMismatch(card1: HTMLElement, card2: HTMLElement): void {
     setTimeout(() => {
         card1.classList.remove('active');
         card2.classList.remove('active');
-
         state.flippedCards = [];
-
         setTimeout(() => {
             switchPlayer();
-
             app.innerHTML = renderGame();
-
             addCardEvents();
-
             setupExitModal();
             state.isLocked = false;
         }, 400);
@@ -327,29 +346,36 @@ function setupExitModal(): void {
 }
 
 /**
- * Checks if all cards are matched and triggers game over
+ * Checks if all cards are matched and triggers game over flow.
  */
- function checkGameOver(): void {
+function checkGameOver(): void {
     const allCards = document.querySelectorAll('.card');
     const allFlipped = document.querySelectorAll('.card.active');
+    if (allCards.length !== allFlipped.length) return;
+    showGameOverScreen();
+    handleWinnerSequence();
+}
 
-    if (allCards.length === allFlipped.length) {
-        app.innerHTML = renderGameOver();
+/**
+ * Renders the game over screen.
+ */
+function showGameOverScreen(): void {
+    app.innerHTML = renderGameOver();
+}
 
+/**
+ * Handles winner rendering, animation and restart setup.
+ */
+function handleWinnerSequence(): void {
+    setTimeout(() => {
+        app.insertAdjacentHTML('beforeend', renderWinner());
+        const winnerEl = document.querySelector('.winner-code, .winner-gaming');
         setTimeout(() => {
-            app.insertAdjacentHTML('beforeend', renderWinner());
-
-            const winnerEl = document.querySelector('.winner-code, .winner-gaming');
-
-            setTimeout(() => {
-                winnerEl?.classList.add('active');
-            }, 50);
-
-            const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
-            restartBtn.addEventListener('click', () => init());
-
-        }, 3000);
-    }
+            winnerEl?.classList.add('active');
+        }, 50);
+        const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+        restartBtn.addEventListener('click', () => init());
+    }, 3000);
 }
 
 /**
@@ -360,16 +386,12 @@ function setupExitModal(): void {
  */
 function handleMatch(value: string) {
     state.matchedValues.push(Number(value));
-
     state.flippedCards.forEach(card => {
         card.classList.add('matched');
     });
-
     updateScore();
-
     state.flippedCards = [];
     state.isLocked = false;
-
     checkGameOver();
 }
 
@@ -378,10 +400,8 @@ function handleMatch(value: string) {
  */
 function handleCardPair(): void {
     const [card1, card2] = state.flippedCards;
-
     const value1 = card1.dataset.value!;
     const value2 = card2.dataset.value!;
-
     if (value1 === value2) {
         setTimeout(() => {
             handleMatch(value1);

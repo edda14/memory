@@ -16,45 +16,50 @@ export {
   getCardImage,
 };
 
-function getGameLayout() {
+/**
+ * Returns card dimensions based on selected theme.
+ */
+function getCardDimensions() {
+  const isCode = state.selectedTheme === 'Code';
+  return {
+    cardWidth: isCode ? 120 : 105,
+    cardHeight: 120
+  };
+}
+
+/**
+ * Returns gap values based on size and theme.
+ */
+function getGridGaps(size: number, isGaming: boolean) {
+  if (size === 24) return { gapX: 12, gapY: 12 };
+  if (size === 36) {
+    return { gapX: isGaming ? 8 : 10, gapY: 10 };
+  }
+  return { gapX: 16, gapY: 16 };
+}
+
+/**
+ * Calculates grid layout (columns and gaps) based on size and theme.
+ */
+function getGridLayout() {
   const size = Number(state.selectedSize);
+  const isGaming = state.selectedTheme === 'Gaming';
+  const { gapX, gapY } = getGridGaps(size, isGaming);
+  return {
+    columns: size === 16 ? 4 : 6,
+    gapX,
+    gapY
+  };
+}
 
-  let cardWidth = state.selectedTheme === 'Code' ? 120 : 105;
-  let cardHeight = state.selectedTheme === 'Code' ? 120 : 120;
-
-  let gapX = 16;
-  let gapY = 16;
-
-  if (state.selectedTheme === 'Gaming') {
-    if (size === 24) {
-      gapX = 12;
-      gapY = 12;
-    }
-    if (size === 36) {
-      gapX = 8;
-      gapY = 10;
-    }
-  }
-
-  if (state.selectedTheme === 'Code') {
-    if (size === 24) {
-      gapX = 12;
-      gapY = 12;
-    }
-    if (size === 36) {
-      gapX = 10;
-      gapY = 10;
-    }
-  }
-
-  let columns = 4;
-  if (size === 24) columns = 6;
-  if (size === 36) columns = 6;
-
-  const themeClass = state.selectedTheme === 'Code'
-    ? 'theme-code'
-    : 'theme-gaming';
-
+/**
+ * Combines layout data for rendering the game board.
+ */
+function getGameLayout() {
+  const { cardWidth, cardHeight } = getCardDimensions();
+  const { columns, gapX, gapY } = getGridLayout();
+  const themeClass =
+    state.selectedTheme === 'Code' ? 'theme-code' : 'theme-gaming';
   return {
     cardWidth,
     cardHeight,
@@ -64,7 +69,6 @@ function getGameLayout() {
     themeClass
   };
 }
-
 
 /**
  * Returns correct image path for a card based on theme
@@ -115,7 +119,9 @@ function renderGameOver(): string {
     : renderGameOverGaming();
 }
 
-
+/**
+ * Renders the home screen with the start button.
+ */
 function renderHome(): string {
   return `
     <main class="home">
@@ -145,7 +151,6 @@ function renderSettings(): string {
           <h3>Game themes</h3>
           </div>
            <div class="option-content">
-
             <label>
                 <input type="radio" name="theme" value="Code">
                 <span class="option-content-dot"></span>
@@ -153,7 +158,6 @@ function renderSettings(): string {
                 <span class="option-content-arrow"></span>
                
             </label>
-
             <label>
                 <input type="radio" name="theme" value="Gaming">
                 <span class="option-content-dot"></span>
@@ -162,8 +166,6 @@ function renderSettings(): string {
             </label>
             </div>
          </section>
-            
-
         <section class="option">
          <div class="option-title">
          <img src="/assets/settings/chess_pawn.svg" alt="Player icon"></img>
@@ -184,7 +186,6 @@ function renderSettings(): string {
           </label>
           </div>
         </section>
-
         <section class="option">
         <div class="option-title">
         <img src="/assets/settings/style.svg" alt="Board size icon"></img>
@@ -212,7 +213,6 @@ function renderSettings(): string {
           </div>
          </section>
     </div>
-
        <div class="settings-content-right">
     <div class="settings-preview">
   <img id="theme-preview" src="/assets/settings/coding-theme.png" alt="Theme preview">
@@ -223,7 +223,6 @@ function renderSettings(): string {
   <span id="summary-player">Player</span>
   <span class="summary-divider"></span>
   <span id="summary-size">Board size</span>
-
 <button id="start-game-btn" disabled type="button"> <img src="/assets/settings/smart_display.svg" alt="Start icon"></img> Start</button>
 </div>
 </div>
@@ -247,7 +246,6 @@ function renderGame(): string {
             ${state.selectedTheme === 'Code' ? `<span class="label score-blue">Blue</span>` : ''}
          <span class="score-blue" id="score-blue">${state.score.blue}</span>
          </div>
-
   <div class="score-div">
     <img src="${getPlayerIcon('orange')}" alt="Player icon orange"/>
     ${state.selectedTheme === 'Code' ? `<span class="label score-orange">Orange</span>` : ''}
@@ -255,56 +253,31 @@ function renderGame(): string {
   </div>
 </div>
   <div class="current ${state.selectedTheme === 'Gaming' ? state.currentPlayer : ''}">
-
   <h2>Current player:</h2>
-
   <div class="current-icon">
-
     <img src="${state.selectedTheme === 'Gaming'
-
       ? '/assets/game/game-theme/chess_white.svg'
-
       : getPlayerIcon(state.currentPlayer as 'blue' | 'orange')
-
     }" alt="Current Player icon"/>
-
   </div>
-
 </div>
         <button id="game-btn" type="button"> 
         <img src="/assets/game/game-theme/move_item.svg" alt="Move icon"></img>
         Exit Game
         </button>
         </nav>
-
-      <div 
-  id="grid" 
-  style="
-    grid-template-columns: repeat(${columns}, ${cardWidth}px);
-    gap: ${gapY}px ${gapX}px;
-  "
->
+      <div id="grid" style="grid-template-columns: repeat(${columns}, ${cardWidth}px); gap: ${gapY}px ${gapX}px;">
           ${renderCards()}
         </div>
-
         <div id="exit-overlay" class="exit-overlay">
   <div class="exit-modal">
     <h2>Are you sure you want to quit the game?</h2>
-
     <div class="exit-actions">
     ${state.selectedTheme === 'Code' ? `
-
   <button id="cancel-exit" class="btn-primary btn" type="button">Back to game</button>
-
-  <button id="confirm-exit" class="btn-secondary btn" type="button">Exit game</button>
-
-` : `
-
+  <button id="confirm-exit" class="btn-secondary btn" type="button">Exit game</button>` : `
   <button id="cancel-exit" class="btn-primary btn" type="button">No, back to game</button>
-
-  <button id="confirm-exit" class="btn-secondary btn" type="button">Yes, quit game</button>
-
-`}
+  <button id="confirm-exit" class="btn-secondary btn" type="button">Yes, quit game</button>`}
     </div>
   </div>
 </div>
@@ -318,10 +291,8 @@ function renderGame(): string {
  */
 function renderCards(): string {
   let html = '';
-
   state.cardValues.forEach((value) => {
     const isMatched = state.matchedValues.includes(value);
-
     html += `
 <div class="card 
   ${isMatched ? 'matched active' : ''}" 
@@ -336,7 +307,6 @@ function renderCards(): string {
 </div>
     `;
   });
-
   return html;
 }
 
@@ -370,7 +340,6 @@ function renderGameOverGaming(): string {
   return `
     <main class="gameover-game">
       <section class="gameover-content">
-
         <h2 class="gameover-title">GAME OVER</h2>
         <h3>Final score</h3>
         <div class="gameover-scores">
@@ -383,7 +352,6 @@ function renderGameOverGaming(): string {
             <span class="blue">${state.score.blue}</span>
           </div>
         </div>
-
       </section>
     </main>
   `;
@@ -393,15 +361,26 @@ function renderGameOverGaming(): string {
  * Renders winner screen (Code theme)
  */
 function renderWinnerCode(): string {
+  const winner = getWinner();
+  const isDraw = winner === 'draw';
   return `
     <main class="winner-code">
     <img class="confetti" src="/assets/winner/confetti.svg" alt="Confetti"/>
       <section class="winner-code-section">
       <div>
-        <h2>The Winner is</h2>
-        <h3 class="winner ${getWinner()}">${getWinner()} Player</h3>
+        ${isDraw ? `
+  <h2>It's a</h2>
+  <h3 class="winner draw">DRAW</h3>
+` : `
+  <h2>The winner is</h2>
+  <h3 class="winner ${winner}">${winner} Player</h3>
+`}
         </div>
-        <img src="${getWinnerIcon(getWinner() as 'blue' | 'orange')}" alt="Winner icon"/>
+        <img src="${
+  isDraw
+    ? './assets/game/coding-theme/Scale_Icon.svg'
+    : getPlayerIcon(winner as 'blue' | 'orange')
+}" alt="Winner icon"/>
         <button id="restart-btn" type="button">
         Back to start
         </button>
@@ -414,15 +393,26 @@ function renderWinnerCode(): string {
  * Renders winner screen (Gaming theme)
  */
 function renderWinnerGaming(): string {
+  const winner = getWinner();
+  const isDraw = winner === 'draw';
   return `
     <main class="winner-gaming">
       <section class="winner-gaming-section">
       <div>
-        <h2 class="winner-title">The winner is</h2>
-        <h3 class="winner ${getWinner()}">${getWinner()} Player</h3>
+      ${isDraw ? `
+  <h2 class="winner-sub">It's a</h2>
+  <h3 class="winner-main draw">DRAW</h3>
+` : `
+  <h2 class="winner-sub">The winner is</h2>
+  <h3 class="winner-main ${winner}">${winner.toUpperCase()}</h3>
+`}
         </div>
         <div class="winner-icon">
-          <img src="/assets/winner/pockal.svg" alt="Pokal"/>
+          <img src="${
+  isDraw
+    ? './assets/game/game-theme/Scale_Icon.svg'
+    : getPlayerIcon(winner as 'blue' | 'orange')
+}" alt="Winner icon" />
         </div>
         <button id="restart-btn" type="button">
           Home

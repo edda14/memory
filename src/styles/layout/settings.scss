@@ -7,7 +7,7 @@
     &-content {
         width: 100%;
         max-width: 1400px;
-        padding:  100px 160px;
+        padding: 100px 160px;
         height: auto;
         display: flex;
         flex-direction: row;
@@ -39,36 +39,41 @@
             flex-direction: column;
             align-items: start;
             gap: 54px;
+
             >h2 {
-        font-family: 'Red Rose';
-        font-size: 54px;
-        position: relative;
-        display: inline-block;
-        margin-bottom: 54px;
+                font-family: 'Red Rose';
+                font-size: 54px;
+                position: relative;
+                display: inline-block;
+                margin-bottom: 54px;
 
-        &::after {
-            content: '';
-            position: absolute;
-            left: -10px;
-            bottom: -5px;
-            width: 242px;
-            height: 4px;
-            background-color: #F0EA6E;
-        }
+                &::after {
+                    content: '';
+                    position: absolute;
+                    left: -10px;
+                    bottom: -5px;
+                    width: 242px;
+                    height: 4px;
+                    background-color: #F0EA6E;
+                }
 
-        &::before {
-            content: '';
-            position: absolute;
-            left: -22px;
-            bottom: -12px;
-            width: 18px;
-            height: 18px;
-            background-color: #F0EA6E;
-            transform: rotate(45deg);
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: -22px;
+                    bottom: -12px;
+                    width: 18px;
+                    height: 18px;
+                    background-color: #F0EA6E;
+                    transform: rotate(45deg);
+                }
+            }
         }
     }
-        }
-    }
+}
+
+#theme-preview {
+    transition: opacity 0.2s ease;
 }
 
 #start-game-btn {
@@ -187,6 +192,7 @@
                 background: #F0EA6E;
                 transform: translateY(-50%) rotate(45deg);
             }
+
         }
 
         >label {
@@ -219,6 +225,7 @@
                     transform: translate(-50%, -50%);
                 }
 
+
                 &:checked~.option-content-text {
                     font-family: 'Almarai Bold';
                     font-weight: bold;
@@ -239,4 +246,16 @@
             display: inline-block;
         }
     }
+}
+
+.option-content label:hover .option-content-dot::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #303131;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
